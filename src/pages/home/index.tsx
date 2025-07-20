@@ -3,7 +3,7 @@ import { api } from "../../services/api";
 import { Link } from "react-router-dom";
 import { FiShoppingCart } from 'react-icons/fi'
 
-interface ProductPrps {
+export interface ProductPrps {
   id: number;
   title: string;
   price: number;
