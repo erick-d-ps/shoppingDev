@@ -1,8 +1,12 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ShoppingCart, Search, Tag, Settings } from "lucide-react";
 
+import { shoppingContext } from "../../context/"
+
 export function Header() {
+  const { cartAmount, } = useContext(shoppingContext)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -101,9 +105,11 @@ export function Header() {
                 onClick={closeMenu}
               >
                 <ShoppingCart size={24} />
-                <span className="absolute -right-2 -top-2 px-2.5 bg-sky-500 rounded-full w-6 h-6 flex justify-center items-center text-white text-xs font-bold">
-                  4
+                { cartAmount > 0 && (
+                  <span className="absolute -right-2 -top-2 px-2.5 bg-sky-500 rounded-full w-6 h-6 flex justify-center items-center text-white text-xs font-bold">
+                  {cartAmount}
                 </span>
+                )}
               </Link>
             </div>
           </div>

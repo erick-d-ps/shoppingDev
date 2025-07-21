@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { api } from "../../services/api";
 import { Link } from "react-router-dom";
 import { FiShoppingCart } from 'react-icons/fi'
 
-export interface ProductPrps {
+import { shoppingContext } from '../../context'
+
+export interface ProductProps {
   id: number;
   title: string;
   price: number;
@@ -17,7 +19,8 @@ export interface ProductPrps {
 }
 
 export function Home() {
-  const [product, setProduct] = useState<ProductPrps[]>([]);
+  const { addItemcart } = useContext(shoppingContext)
+  const [product, setProduct] = useState<ProductProps[]>([]);
 
   useEffect(() => {
     async function addProducts() {
@@ -26,6 +29,11 @@ export function Home() {
     }
     addProducts();
   }, []);
+
+  function handleAttItemCart(item: ProductProps){
+    addItemcart(item)
+    alert("Produto adicionado ao carrinho")
+  }
 
   return (
     <div className="w-full">
@@ -49,7 +57,10 @@ export function Home() {
                   />
                 </Link>
                 <strong className="absolute bottom-1 left-2">R$ {item.price}</strong>
-                <button className="fixe absolute bottom-1 right-2">
+                <button 
+                 className="fixe absolute bottom-1 right-2"
+                 onClick={() => handleAttItemCart(item)}
+                >
                   <FiShoppingCart
                     size={25}
                     color="#7f24ac"
