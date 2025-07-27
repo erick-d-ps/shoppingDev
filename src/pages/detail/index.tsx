@@ -1,7 +1,10 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+import { useEffect, useState, useContext } from "react";
 import { api } from "../../services/api";
 import { FiShoppingCart } from "react-icons/fi";
+import {type ProductProps} from "../home" 
+import { shoppingContext } from "../../context"
 
 interface IdProdutoPrps {
   id: number;
@@ -17,6 +20,8 @@ interface IdProdutoPrps {
 }
 
 export function Detail() {
+  const navigate = useNavigate();
+  const { addItemcart } = useContext(shoppingContext)
   const { id } = useParams();
   const [produtoId, setProdutoIp] = useState<IdProdutoPrps>();
 
@@ -28,6 +33,11 @@ export function Detail() {
 
     getDetail();
   }, [id]);
+
+  function handleaddcard(produtoId: ProductProps){
+     addItemcart(produtoId)
+     navigate("/cart")
+  }
 
   return (
     <main className="w-full">
@@ -52,7 +62,9 @@ export function Detail() {
               <div className="flex flex-col gap-4 items-center">
                 <strong className="text-2xl">R$ {produtoId?.price}</strong>
                 <div className="w-full">
-                  <button className="flex flex-row w-full py-2 px-22 bg-gray-200 rounded-xl items-center justify-center gap-2  hover:bg-purple-700 hover:text-white transition-all duration-300 ">
+                  <button 
+                  onClick={() => handleaddcard(produtoId as ProductProps)}
+                  className="flex flex-row w-full py-2 px-22 bg-gray-200 rounded-xl items-center justify-center gap-2  hover:bg-purple-700 hover:text-white transition-all duration-300 ">
                     <strong>Comprar</strong>
                     <FiShoppingCart size={25} />
                   </button>
