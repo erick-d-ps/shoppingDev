@@ -4,7 +4,8 @@ import { type ProductProps } from "../pages/home";
 interface shoppingContextData {
   cart: CardProps[];
   cartAmount: number;
-  addItemcart: (newItem: ProductProps) => void; //tenho que informar o que ele vai receber
+  addItemcart: (newItem: ProductProps) => void;
+  remuvItemCart: (newItem: ProductProps) => void; 
 }
 
 type shoppingProviderProps = {
@@ -27,29 +28,56 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
   const [cart, setCart] = useState<CardProps[]>([]);
 
   function addItemcart(newItem: ProductProps) {
-    const indexItem = cart.findIndex((item) => item.id === newItem.id);
 
-    if (indexItem !== -1) {
-      // se entrou aqui apenas somamos + 1 na quantidade e calculamos o total desse carrinho.
-      let cartList = cart;
+    setCart((response) => {
+      const itemId = response.find((item) => item.id === newItem.id);
 
-      cartList[indexItem].amount += 1;
-      // então aqui estou pegando a quantidade de items que tenho no carrinho e somando com amis 1
-      cartList[indexItem].total = cartList[indexItem].amount * cartList[indexItem].price;
-      // para fazer o total  pego a quantidade de itens que tenho no carrinho e multiplico pelo preço
+      if (itemId) {
+       
+        return response.map(
+          (item) =>
+            item.id === newItem.id
+              ? {
+                  ...item, 
+                  amount: item.amount + 1, 
+                  total: item.price * (item.amount + 1), 
+                }
+              : item 
+        );
+      } else {
+       
+        const newCartItem: CardProps = {
+          ...newItem,
+          amount: 1,
+          total: newItem.price,
+        };
+        return [...response, newCartItem];
+      }
+    });
+  }
 
-      setCart(cartList)
-      return;
-    }
-    // adicionar esse item na nossa lista
-    let data = {
-       ...newItem,
-       amount: 1,
-       total: newItem.price 
-    };
+  function remuvItemCart(newItem: ProductProps){
+    
+    setCart((response) => {
+      const itemId = response.find((item) => item.id === newItem.id);
 
-    setCart(products => [...products, data])
-    //caso ja tenha um item dentro da lista ele vai pegar o que ja tem e colocar o novo item que no caso é o data 
+      if(!itemId || itemId.amount <= 1){
+        return response.filter((item) => item.id !== newItem.id)
+      }
+
+      if( itemId ){
+        return response.map((item => item.id === newItem.id ?
+          {
+            ...item,
+            amount: item.amount - 1,
+            total: item.price * (item.amount - 1)
+          }
+          :item
+        ));
+      }else {
+        return response.filter((item) => item.id !== newItem.id)
+      }
+    })
   }
 
   return (
@@ -57,10 +85,11 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
       value={{
         cart,
         cartAmount: cart.length,
-        addItemcart 
+        addItemcart,
+        remuvItemCart,
       }}
     >
-      {children}
+     {children}
     </shoppingContext.Provider>
   );
 }
