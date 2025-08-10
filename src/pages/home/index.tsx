@@ -12,10 +12,6 @@ export interface ProductProps {
   description: string;
   categori: string;
   image: string;
-  rating: {
-    rate: number;
-    count: number;
-  };
 }
 
 export function Home() {
@@ -32,7 +28,6 @@ export function Home() {
 
   function handleAttItemCart(item: ProductProps){
     addItemcart(item)
-    alert("Produto adicionado ao carrinho")
   }
 
   return (
