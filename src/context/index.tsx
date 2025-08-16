@@ -1,11 +1,14 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 import { type ProductProps } from "../pages/home";
 
 interface shoppingContextData {
   cart: CardProps[];
+  totalGeral: number;
+  totalFrete: number;
   cartAmount: number;
   addItemcart: (newItem: ProductProps) => void;
   remuvItemCart: (newItem: ProductProps) => void; 
+  deletItemCard: (newItem: ProductProps) => void;
 }
 
 type shoppingProviderProps = {
@@ -22,10 +25,27 @@ interface CardProps {
   total: number;
 }
 
+
 export const shoppingContext = createContext({} as shoppingContextData);
+
+
 
 function ShoppingProvider({ children }: shoppingProviderProps) {
   const [cart, setCart] = useState<CardProps[]>([]);
+  const [totalGeral, setTotalGeral] = useState(0)
+  const [totalFrete, setTotalFrete] = useState(0)
+
+  useEffect(() => {
+    function totalResultCart(){
+      let frete = 60;
+      const result = cart.reduce((acc, obj) => acc + obj.total, 0);
+      const FretResult = frete + result
+  
+      setTotalGeral(result);
+      setTotalFrete(FretResult);
+    }
+    totalResultCart();
+  }, [cart])
 
   function addItemcart(newItem: ProductProps) {
 
@@ -80,6 +100,13 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
     })
   }
 
+  function deletItemCard(newItem: ProductProps){
+    const remuvItem = cart.filter(produto => produto.id !== newItem.id)
+    setCart(remuvItem);
+   
+  }
+
+
   return (
     <shoppingContext.Provider
       value={{
@@ -87,6 +114,9 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
         cartAmount: cart.length,
         addItemcart,
         remuvItemCart,
+        deletItemCard,
+        totalFrete,
+        totalGeral
       }}
     >
      {children}
