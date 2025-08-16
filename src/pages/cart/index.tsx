@@ -15,7 +15,15 @@ interface CardProps {
 }
 
 export function Cart() {
-  const { cart, addItemcart,remuvItemCart } = useContext(shoppingContext);
+  const { 
+    cart, 
+    addItemcart, 
+    remuvItemCart, 
+    deletItemCard, 
+    cartAmount,
+    totalFrete,
+    totalGeral 
+  } = useContext(shoppingContext);
 
   function handleAddMore(item: CardProps) {
     const product: ProductProps = {
@@ -24,9 +32,9 @@ export function Cart() {
       description: item.description,
       price: item.price,
       image: item.image,
-      categori: ""
+      categori: "",
     };
-    addItemcart(product)
+    addItemcart(product);
   }
   function handhleDecreaseItem(item: CardProps) {
     const product: ProductProps = {
@@ -35,9 +43,20 @@ export function Cart() {
       description: item.description,
       price: item.price,
       image: item.image,
-      categori: ""
+      categori: "",
     };
-    remuvItemCart(product)
+    remuvItemCart(product);
+  }
+  function handhleRemuvItem(item: CardProps) {
+    const product: ProductProps = {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      price: item.price,
+      image: item.image,
+      categori: "",
+    };
+    deletItemCard(product);
   }
 
   return (
@@ -61,15 +80,18 @@ export function Cart() {
                   +
                 </button>
                 <p>{item.amount}</p>
-                <button 
-                className="w-5 h-5 flex items-center justify-center rounded-xs bg-blue-500 text-white"
-                onClick={() => handhleDecreaseItem(item)}
+                <button
+                  className="w-5 h-5 flex items-center justify-center rounded-xs bg-blue-500 text-white"
+                  onClick={() => handhleDecreaseItem(item)}
                 >
                   -
                 </button>
               </div>
               <div className="flex flex-col items-center justify-center gap-0.5">
-                <button className="w-7 bg-blue-500 px-1 py-1 flex items-center justify-center rounded-sm">
+                <button
+                  onClick={() => handhleRemuvItem(item)}
+                  className="w-7 bg-blue-500 px-1 py-1 flex items-center justify-center rounded-sm"
+                >
                   <FiTrash2 size={20} color="#fff" />
                 </button>
                 <div className="flex flex-col items-center justify-center w-30 h-15 bg-gray-200 rounded-md ">
@@ -91,35 +113,37 @@ export function Cart() {
             </h1>
           </div>
         )}
-        <div className="w-full min-h-20 bg-white rounded-xl mt-10">
-          <div className="flex flex-col gap-2 mt-2 items-center ">
-            <h1 className="text-2xl font-bold">Total do carrinho</h1>
-            <div className="flex gap-1.5">
-              <strong>Quatidade de itens:</strong>
-              <p>4</p>
+        {cart.length > 0 && (
+          <div className="w-full min-h-20 bg-white rounded-xl mt-10">
+            <div className="flex flex-col gap-2 mt-2 items-center ">
+              <h1 className="text-2xl font-bold">Total do carrinho</h1>
+              <div className="flex gap-1.5">
+                <strong>Quatidade de itens:</strong>
+                <p>{cartAmount}</p>
+              </div>
+              <div className="flex gap-1.5">
+                <strong>Valor Total:</strong>
+                <p>{totalGeral.toLocaleString("pt-BR", {style: "currency", currency: "BRL" })}</p>
+              </div>
+              <div className="flex gap-1.5">
+                <strong>Frete:</strong>
+                <p>R$ 60.00</p>
+              </div>
+              <div className="flex gap-1.5 ">
+                <strong>Total com frete:</strong>
+                <p>{totalFrete.toLocaleString("pt-BR", {style: "currency", currency: "BRL" })}</p>
+              </div>
+              <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-blue-500 my-2 font-bold text-white ">
+                <FiCheck size={24} color="#fff" />
+                Finalizar compra
+              </button>
+              <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-red-500 mb-4 font-bold text-white ">
+                <FiTrash size={24} color="#fff" />
+                Limpar carrinho
+              </button>
             </div>
-            <div className="flex gap-1.5">
-              <strong>Valor Total:</strong>
-              <p>R$ 400.00</p>
-            </div>
-            <div className="flex gap-1.5">
-              <strong>Frete:</strong>
-              <p>R$ 60.00</p>
-            </div>
-            <div className="flex gap-1.5 ">
-              <strong>Total com frete:</strong>
-              <p>R$ 460.00</p>
-            </div>
-            <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-blue-500 my-2 font-bold text-white ">
-              <FiCheck size={24} color="#fff" />
-              Finalizar compra
-            </button>
-            <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-red-500 mb-4 font-bold text-white ">
-              <FiTrash size={24} color="#fff" />
-              Limpar carrinho
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </main>
   );
