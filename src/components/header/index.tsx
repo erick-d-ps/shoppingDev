@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { ShoppingCart, Search, Tag, Settings } from "lucide-react";
+import { ShoppingCart, Search, Tag, } from "lucide-react";
 
 import { shoppingContext } from "../../context/";
 
@@ -51,16 +51,7 @@ export function Header() {
                 Minhas compras
               </Link>
             </div>
-            <div className="w-full md:w-auto h-10 flex justify-center items-center px-4 py-1 rounded-2xl bg-white hover:bg-purple-700 hover:text-white transition-all duration-300 transform hover:scale-105">
-              <Link
-                className="text-base font-medium flex gap-1 items-center"
-                to={"/sobre"}
-                onClick={closeMenu}
-              >
-                <Settings size={18} />
-                <span>Sobre</span>
-              </Link>
-            </div>
+            
           </div>
 
           <div className="relative w-8 sm:w-full h-10 flex justify-center items-center px-1 py-1 mx-2 rounded-2xl bg-white hover:bg-purple-700 hover:text-white transition-all duration-300 transform hover:scale-105">
