@@ -22,7 +22,9 @@ export function Cart() {
     deletItemCard, 
     cartAmount,
     totalFrete,
-    totalGeral 
+    totalGeral,
+    cleanCart,
+    finishedCart 
   } = useContext(shoppingContext);
 
   function handleAddMore(item: CardProps) {
@@ -133,11 +135,15 @@ export function Cart() {
                 <strong>Total com frete:</strong>
                 <p>{totalFrete.toLocaleString("pt-BR", {style: "currency", currency: "BRL" })}</p>
               </div>
-              <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-blue-500 my-2 font-bold text-white ">
+              <button 
+                onClick={finishedCart}
+                className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-blue-500 my-2 font-bold text-white ">
                 <FiCheck size={24} color="#fff" />
                 Finalizar compra
               </button>
-              <button className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-red-500 mb-4 font-bold text-white ">
+              <button 
+                onClick={cleanCart}
+                className="w-4/5 h-10 flex items-center justify-center gap-2 rounded-2xl bg-red-500 mb-4 font-bold text-white ">
                 <FiTrash size={24} color="#fff" />
                 Limpar carrinho
               </button>
