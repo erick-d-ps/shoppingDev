@@ -5,6 +5,7 @@ import { Layout } from "./components/layout";
 import { Notfound } from "./pages/notfound";
 import { Detail } from "./pages/detail";
 import { Cart } from "./pages/cart"
+import { Deshboard } from "./pages/dashboard"
 
 const Router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const Router = createBrowserRouter([
       {
         path: "/cart",
         element: <Cart/>
+      },
+      {
+        path: "/dashboard",
+        element: <Deshboard/>
       },
       {
         path: "*",
