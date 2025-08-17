@@ -45,7 +45,7 @@ export function Header() {
             <div className=" w-full md:w-auto lg:w-40 h-10 flex justify-center items-center px-4 py-1 rounded-2xl bg-white hover:bg-purple-700 hover:text-white transition-all duration-300 transform hover:scale-105">
               <Link
                 className=" font-medium flex items-center"
-                to={"/minhas-compras"}
+                to={"/dashboard"}
                 onClick={closeMenu}
               >
                 Minhas compras
