@@ -3,12 +3,15 @@ import { type ProductProps } from "../pages/home";
 
 interface shoppingContextData {
   cart: CardProps[];
+  cartFinished: buyPorps[];
   totalGeral: number;
   totalFrete: number;
   cartAmount: number;
   addItemcart: (newItem: ProductProps) => void;
   remuvItemCart: (newItem: ProductProps) => void; 
   deletItemCard: (newItem: ProductProps) => void;
+  cleanCart: () => void;
+  finishedCart: () => void;
 }
 
 type shoppingProviderProps = {
@@ -25,6 +28,12 @@ interface CardProps {
   total: number;
 }
 
+interface buyPorps{
+  id: string;
+  date: Date;
+  items: CardProps[];
+  total: number
+}
 
 export const shoppingContext = createContext({} as shoppingContextData);
 
@@ -32,6 +41,7 @@ export const shoppingContext = createContext({} as shoppingContextData);
 
 function ShoppingProvider({ children }: shoppingProviderProps) {
   const [cart, setCart] = useState<CardProps[]>([]);
+  const [cartFinished, setCartFinished] = useState<buyPorps[]>([]);
   const [totalGeral, setTotalGeral] = useState(0)
   const [totalFrete, setTotalFrete] = useState(0)
 
@@ -46,6 +56,13 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
     }
     totalResultCart();
   }, [cart])
+
+  useEffect(() => {
+    if(cartFinished.length > 0){
+      console.log(cartFinished)
+    }
+
+  }, [cartFinished])
 
   function addItemcart(newItem: ProductProps) {
 
@@ -106,6 +123,29 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
    
   }
 
+  function cleanCart(){
+    alert("Carrinho foi limpo!")
+    setCart([])
+  }
+
+  function finishedCart(){
+    if(cart.length === 0){
+      return;
+    }
+
+    const newBuy: buyPorps = {
+      id: String(new Date().getTime()),
+      date: new Date(),
+      items:cart,
+      total: totalFrete,
+    };
+
+    setCartFinished((prev) => [...prev, newBuy])
+
+    alert("Compra finalizada com sucesso!")
+    setCart([]);
+  }
+
 
   return (
     <shoppingContext.Provider
@@ -116,7 +156,10 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
         remuvItemCart,
         deletItemCard,
         totalFrete,
-        totalGeral
+        totalGeral,
+        cleanCart,
+        cartFinished,
+        finishedCart
       }}
     >
      {children}
