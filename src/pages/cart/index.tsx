@@ -63,7 +63,7 @@ export function Cart() {
 
   return (
     <main className="w-full">
-      <div className="w-full flex flex-col max-w-6xl gap-2 mt-10 px-4 mx-auto">
+      <div className="w-full flex flex-col max-w-6xl gap-2 mt-30 px-4 mx-auto">
         {cart.length > 0 &&
           cart.map((item) => (
             <section

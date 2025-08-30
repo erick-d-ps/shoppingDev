@@ -41,7 +41,7 @@ export function Detail() {
 
   return (
     <main className="w-full">
-      <section className="w-full max-w-6xl mt-10 px-4 mx-auto">
+      <section className="w-full max-w-6xl mt-30 px-4 mx-auto">
         <h1 className="text-2xl font-bold flex mb-6 justify-center">
           {produtoId?.title}
         </h1>

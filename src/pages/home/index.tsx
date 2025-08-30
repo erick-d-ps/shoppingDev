@@ -32,7 +32,7 @@ export function Home() {
 
   return (
     <div className="w-full">
-      <main className="w-full max-w-6xl mt-10 px-4 mx-auto">
+      <main className="w-full max-w-6xl mt-30 px-4 mx-auto">
         <h1 className="text-2xl flex items-center justify-center font-bold w-full mb-5 ">
           Produtos em alta
         </h1>

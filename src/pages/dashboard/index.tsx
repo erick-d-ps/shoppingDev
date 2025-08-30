@@ -7,7 +7,7 @@ export function Deshboard() {
 
   return (
     <main className="w-full">
-      <div className="w-full flex flex-col max-w-6xl mt-10 px-4 mx-auto">
+      <div className="w-full flex flex-col max-w-6xl mt-30 px-4 mx-auto">
         <h1 className="w-full text-center my-4 text-2xl font-bold">
           Minhas ultimas compras
         </h1>

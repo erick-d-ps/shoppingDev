@@ -18,7 +18,7 @@ export function Header() {
   };
 
   return (
-    <header className="w-full px-1 bg-slate-100 shadow-md">
+    <header className="w-full px-1 bg-slate-100 z-50 fixed top-0 shadow-md">
       <nav className="w-full max-w-6xl h-20 flex items-center justify-between px-5 mx-auto relative">
         <div className="flex-shrink-0">
           <Link className="text-2xl font-bold text-purple-700" to={"/"}>
