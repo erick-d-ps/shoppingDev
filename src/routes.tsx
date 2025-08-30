@@ -6,6 +6,9 @@ import { Notfound } from "./pages/notfound";
 import { Detail } from "./pages/detail";
 import { Cart } from "./pages/cart"
 import { Deshboard } from "./pages/dashboard"
+import { Buy } from "./pages/buy"
+
+import { Login } from "./pages/login"
 
 const Router = createBrowserRouter([
   {
@@ -28,11 +31,19 @@ const Router = createBrowserRouter([
         element: <Deshboard/>
       },
       {
+        path: "/dashboard/buy/:id",
+        element: <Buy/>
+      },
+      {
         path: "*",
         element: <Notfound/>
       },
     
     ],
+  },
+  {
+    path: "/login",
+    element: <Login/>
   },
 ]);
 
