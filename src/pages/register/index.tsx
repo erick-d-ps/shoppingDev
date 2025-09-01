@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/input";
 import { auth } from "../../services/firebase/firebaseConection";
 
+import toast from "react-hot-toast";
+
 const schema = z.object({
   nome: z
     .string()
@@ -29,16 +31,19 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-useEffect(() => {
-  async function handleLogout(){
-    await signOut(auth)
-  }
-
-  handleLogout()
-}, [])
 
 export function Register() {
   const { handleInfoUser } = useContext(shoppingContext)
+
+  useEffect(() => {
+    async function handleLogout(){
+      await signOut(auth)
+    }
+  
+    handleLogout()
+  }, [])
+
+
     
   const navigate = useNavigate();  
   const {
@@ -60,11 +65,12 @@ export function Register() {
         email: data.email,
         uid: user.user.uid
       })
-
+      toast.success("Bem vindo ao ShoppingDev")
       console.log("usuario cadastrado com sucesso!")
-      navigate("/dashboard")
+      navigate("/dashboard", {replace: true})
     })
     .catch((err) =>{
+     toast.error("Erro tente novamente!") 
      console.log("Erro ao cadastrar o usuario ")
      console.log(err)
     })
@@ -107,6 +113,7 @@ export function Register() {
               type="password"
               register={register}
               error={errors.password?.message}
+              autocomplete="current-password"
             />
           </div>
           <button

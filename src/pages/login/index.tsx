@@ -1,9 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Input } from "../../components/input";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { signOut, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../services/firebase/firebaseConection";
+
+import toast from "react-hot-toast";
 
 const schema = z.object({
   email: z.email("Incira um email válido").nonempty(),
@@ -13,14 +18,36 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function Login() {
+  const navgate = useNavigate()
+
+  useEffect(() => {
+    async function handleLogout(){
+      await signOut(auth)
+    }
+  
+    handleLogout()
+  }, [])
+
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-  function onsubmit(data: FormData) {
-    console.log(data);
+  async function onsubmit(data: FormData) {
+    await signInWithEmailAndPassword(auth, data.email, data.password)
+    .then((user) =>{
+      console.log("Usuario logado...")
+      toast.success("Usuário logado com sucesso")
+      console.log(user)
+      navgate("/dashboard", {replace: true})
+    })
+    .catch((err) => {
+      console.log(err)
+      console.log("Erro ao fazer login")
+      alert("Usuario não encontrado!")
+    })
   }
 
   return (
@@ -51,6 +78,7 @@ export function Login() {
               type="password"
               error={errors.password?.message}
               register={register}
+              autocomplete="current-password"
             />
           </div>
           <button
