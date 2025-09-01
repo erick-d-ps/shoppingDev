@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
+import { onAuthStateChanged } from "firebase/auth"
 import { type ProductProps } from "../pages/home";
+import { auth } from "../services/firebase/firebaseConection";
 
 interface shoppingContextData {
   cart: CardProps[];
@@ -12,6 +14,9 @@ interface shoppingContextData {
   deletItemCard: (newItem: ProductProps) => void;
   cleanCart: () => void;
   finishedCart: () => void;
+  user: Userprops | null;
+  loadingAuth: boolean;
+  handleInfoUser: (newUser: Userprops) => void;  
 }
 
 type shoppingProviderProps = {
@@ -35,6 +40,12 @@ interface buyPorps{
   total: number
 }
 
+interface Userprops{
+  uid: string;
+  nome: string | null;
+  email: string | null;
+}
+
 export const shoppingContext = createContext({} as shoppingContextData);
 
 
@@ -44,6 +55,9 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
   const [cartFinished, setCartFinished] = useState<buyPorps[]>([]);
   const [totalGeral, setTotalGeral] = useState(0)
   const [totalFrete, setTotalFrete] = useState(0)
+
+  const [user, setUser] = useState<Userprops | null>(null)
+  const [loadingAuth, setLoadinAuth] =useState(true)
 
   useEffect(() => {
     function totalResultCart(){
@@ -61,8 +75,25 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
     if(cartFinished.length > 0){
       console.log(cartFinished)
     }
-
   }, [cartFinished])
+
+  useEffect(() => {
+    const search = onAuthStateChanged(auth, (user) =>{
+      if(user){
+        setUser({
+          uid: user.uid,
+          nome: user?.displayName,
+          email: user?.email
+        })
+        setLoadinAuth(false)
+      }else{
+        setUser(null)
+        setLoadinAuth(false)
+      }
+    })
+
+    search()
+  }, [])
 
   function addItemcart(newItem: ProductProps) {
 
@@ -146,7 +177,11 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
     setCart([]);
   }
 
+  function handleInfoUser(newUser: Userprops){
+    const user= newUser
 
+    setUser(user)
+  }
   return (
     <shoppingContext.Provider
       value={{
@@ -159,7 +194,10 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
         totalGeral,
         cleanCart,
         cartFinished,
-        finishedCart
+        finishedCart,
+        user,
+        loadingAuth,
+        handleInfoUser
       }}
     >
      {children}
