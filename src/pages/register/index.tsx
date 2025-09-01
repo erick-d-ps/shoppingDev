@@ -1,9 +1,14 @@
-import { Link } from "react-router-dom";
+import { useEffect, useContext } from "react";
+import { createUserWithEmailAndPassword, updateProfile, signOut } from "firebase/auth"
+import { Link, useNavigate } from "react-router-dom";
+
+import { shoppingContext } from "../../context"
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/input";
+import { auth } from "../../services/firebase/firebaseConection";
 
 const schema = z.object({
   nome: z
@@ -24,15 +29,45 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+useEffect(() => {
+  async function handleLogout(){
+    await signOut(auth)
+  }
+
+  handleLogout()
+}, [])
+
 export function Register() {
+  const { handleInfoUser } = useContext(shoppingContext)
+    
+  const navigate = useNavigate();  
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-  function onsubmit(data: FormData){
-    console.log(data)
+  async function onsubmit(data: FormData){
+    createUserWithEmailAndPassword(auth, data.email, data.password)
+    
+    .then(async (user) =>{
+      await updateProfile(user.user, {
+        displayName: data.nome
+      })
+
+      handleInfoUser({
+        nome: data.nome,
+        email: data.email,
+        uid: user.user.uid
+      })
+
+      console.log("usuario cadastrado com sucesso!")
+      navigate("/dashboard")
+    })
+    .catch((err) =>{
+     console.log("Erro ao cadastrar o usuario ")
+     console.log(err)
+    })
   }
 
   return (
@@ -78,9 +113,10 @@ export function Register() {
             type="submit"
             className="w-full mt-5 bg-fuchsia-700 text-white font-bold py-1 rounded-md"
           >
-            Acessar
+            Registrar
           </button>
         </form>
+        <p className="mt-5">Já tem uma conta <Link className="text-fuchsia-700 font-medium" to={"/login"}>Fazer login</Link></p>
       </div>
     </main>
   );
