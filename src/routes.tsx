@@ -11,6 +11,8 @@ import { Buy } from "./pages/buy"
 import { Login } from "./pages/login"
 import { Register } from "./pages/register"
 
+import { Private } from "./routes/private"
+
 const Router = createBrowserRouter([
   {
     element: <Layout/>,
@@ -25,15 +27,15 @@ const Router = createBrowserRouter([
       },
       {
         path: "/cart",
-        element: <Cart/>
+        element: <Private><Cart/></Private>
       },
       {
         path: "/dashboard",
-        element: <Deshboard/>
+        element: <Private><Deshboard/></Private>
       },
       {
         path: "/dashboard/buy/:id",
-        element: <Buy/>
+        element: <Private><Buy/></Private>
       },
       {
         path: "*",
