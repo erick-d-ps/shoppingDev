@@ -17,6 +17,7 @@ interface shoppingContextData {
   user: Userprops | null;
   loadingAuth: boolean;
   handleInfoUser: (newUser: Userprops) => void;  
+  signed: boolean;
 }
 
 type shoppingProviderProps = {
@@ -92,7 +93,9 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
       }
     })
 
-    search()
+    return() => {
+      search()
+    }
   }, [])
 
   function addItemcart(newItem: ProductProps) {
@@ -197,7 +200,8 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
         finishedCart,
         user,
         loadingAuth,
-        handleInfoUser
+        handleInfoUser,
+        signed: !!user
       }}
     >
      {children}
