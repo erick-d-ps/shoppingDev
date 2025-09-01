@@ -7,6 +7,7 @@ interface ImputProps{
   register: UseFormRegister<any>;
   error?: string;
   rules?: RegisterOptions; 
+  autocomplete?: string
 }
 
 export function Input({type, placeholder, name, register, error, rules}: ImputProps){
