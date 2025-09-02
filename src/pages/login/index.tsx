@@ -41,7 +41,7 @@ export function Login() {
       console.log("Usuario logado...")
       toast.success("Usuário logado com sucesso")
       console.log(user)
-      navgate("/dashboard", {replace: true})
+      navgate("/", {replace: true})
     })
     .catch((err) => {
       console.log(err)

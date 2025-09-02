@@ -67,7 +67,7 @@ export function Register() {
       })
       toast.success("Bem vindo ao ShoppingDev")
       console.log("usuario cadastrado com sucesso!")
-      navigate("/dashboard", {replace: true})
+      navigate("/", {replace: true})
     })
     .catch((err) =>{
      toast.error("Erro tente novamente!") 
