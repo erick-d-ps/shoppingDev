@@ -200,6 +200,7 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
       await updateDoc(cartDocRef, {
         items: arrayRemove(currentItem),
       });
+      
     } else {
       const updatedItem = {
         ...currentItem,
@@ -246,7 +247,7 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
 
     console.log("Carrinho deletado do banco");
 
-    alert("Carrinho foi limpo!");
+    toast.success("Carrinho foi limpo!");
     setCart([]);
   }
 
