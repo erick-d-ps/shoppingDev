@@ -13,6 +13,9 @@ import {
   doc,
   setDoc,
   deleteDoc,
+  arrayRemove,
+  arrayUnion,
+  updateDoc,
 } from "firebase/firestore";
 
 import toast from "react-hot-toast";
@@ -72,10 +75,10 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
   const [user, setUser] = useState<Userprops | null>(null);
   const [loadingAuth, setLoadinAuth] = useState(true);
 
-  //finalizar cart
+  // Calcula o total do carrinho e do frete
   useEffect(() => {
     function totalResultCart() {
-      let frete = 60;
+      const frete = 60;
       const result = cart.reduce((acc, obj) => acc + obj.total, 0);
       const FretResult = frete + result;
 
@@ -85,7 +88,7 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
     totalResultCart();
   }, [cart]);
 
-  //pegar as informaçoes do usuario
+  // Busca as informações do usuário logado
   useEffect(() => {
     const search = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -94,20 +97,19 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
           nome: user?.displayName,
           email: user?.email,
         });
-        setLoadinAuth(false);
       } else {
         setUser(null);
-        setLoadinAuth(false);
       }
+      setLoadinAuth(false);
     });
     return () => {
       search();
     };
   }, []);
 
-  //salva compra finalizada
+  // Carrega as compras finalizadas e o carrinho do Firestore
   useEffect(() => {
-    async function loadLatestPurchases() {
+    async function loadData() {
       if (!user) {
         setCartFinished([]);
         setCart([]);
@@ -117,18 +119,14 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
       try {
         const purchasesRef = collection(db, "finishedCart");
         const quaryRef = query(purchasesRef, where("userId", "==", user.uid));
-        const snapshot = await getDocs(quaryRef);
+        const purchasesSnapshot = await getDocs(quaryRef);
 
-        let list = [] as buyProps[];
-
-        snapshot.forEach((doc) => {
-          list.push({
-            id: doc.id,
-            date: doc.data().date.toDate(),
-            items: doc.data().items,
-            total: doc.data().total,
-          });
-        });
+        const list = purchasesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          date: doc.data().date.toDate(),
+          items: doc.data().items,
+          total: doc.data().total,
+        })) as buyProps[];
 
         setCartFinished(list);
 
@@ -136,118 +134,118 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
         const cartSnapshot = await getDoc(cartDocRef);
 
         if (cartSnapshot.exists()) {
-          const saveCart = cartSnapshot.data().items as CardProps[];
-
-          setCart((prevCart) => {
-            const merged = new Map<number, CardProps>();
-
-            saveCart.forEach((item) => {
-              merged.set(item.id, { ...item });
-            });
-
-            prevCart.forEach((item) => {
-              if (merged.has(item.id)) {
-                const existing = merged.get(item.id)!;
-                merged.set(item.id, {
-                  ...existing,
-                  amount: existing.amount + item.amount,
-                  total: existing.total + item.total,
-                });
-              } else {
-                merged.set(item.id, { ...item });
-              }
-            });
-
-            return Array.from(merged.values());
-          });
+          const savedCart = cartSnapshot.data().items as CardProps[];
+          setCart(savedCart);
+        } else {
+          setCart([]);
         }
       } catch (err) {
-        console.log("ERRO AO BUSCAR ITENS DO BANCO", err);
+        console.log("ERRO AO BUSCAR DADOS DO BANCO", err);
       }
     }
-
-    loadLatestPurchases();
+    loadData();
   }, [user]);
 
-  //salva carrinho no banco
-  useEffect(() => {
-    if (user) {
-      const cartDocRef = doc(db, "cart", user.uid);
+  // Funções de manipulação do carrinho
+  async function addItemcart(newItem: ProductProps) {
+    if (!user) return;
 
-      if (cart.length > 0) {
-        setDoc(
-          cartDocRef,
-          {
-            items: cart,
-            loadUpdated: new Date(),
-          },
-          { merge: true }
-        )
-          .then(() => console.log("CARRINHO SALVO!"))
-          .catch(() => console.log("ERRO AO SALVAR O CARRINHO"));
-      } else {
-        deleteDoc(cartDocRef)
-          .then(() => console.log("CARRINHO DELETADO!"))
-          .catch(() => console.log("ERRO AO DELETAR O CARRINHO"));
-      }
+    let updatedCart: CardProps[];
+    const itemId = cart.find((item) => item.id === newItem.id);
+
+    if (itemId) {
+      updatedCart = cart.map((item) =>
+        item.id === newItem.id
+          ? {
+              ...item,
+              amount: item.amount + 1,
+              total: item.price * (item.amount + 1),
+            }
+          : item
+      );
+    } else {
+      const newCartItem: CardProps = {
+        ...newItem,
+        amount: 1,
+        total: newItem.price,
+      };
+      updatedCart = [...cart, newCartItem];
     }
-  }, [user, cart]);
 
-  function addItemcart(newItem: ProductProps) {
-    setCart((response) => {
-      const itemId = response.find((item) => item.id === newItem.id);
+    setCart(updatedCart);
 
-      if (itemId) {
-        return response.map((item) =>
-          item.id === newItem.id
-            ? {
-                ...item,
-                amount: item.amount + 1,
-                total: item.price * (item.amount + 1),
-              }
-            : item
-        );
-      } else {
-        const newCartItem: CardProps = {
-          ...newItem,
-          amount: 1,
-          total: newItem.price,
-        };
-        return [...response, newCartItem];
-      }
+    try {
+      const cartDocRef = doc(db, "cart", user.uid);
+      await setDoc(
+        cartDocRef,
+        { items: updatedCart, loadUpdated: new Date() },
+        { merge: true }
+      );
+      console.log("Item adicionado e carrinho salvo!");
+    } catch (error) {
+      console.error("ERRO AO SALVAR O CARRINHO", error);
+    }
+  }
+
+  async function remuvItemCart(newItem: ProductProps) {
+    if (!user) return;
+
+    const cartDocRef = doc(db, "cart", user.uid);
+    const currentItem = cart.find((item) => item.id === newItem.id);
+
+    if (!currentItem) return;
+
+    if (currentItem.amount <= 1) {
+      setCart((prev) => prev.filter((item) => item.id !== newItem.id));
+      await updateDoc(cartDocRef, {
+        items: arrayRemove(currentItem),
+      });
+    } else {
+      const updatedItem = {
+        ...currentItem,
+        amount: currentItem.amount - 1,
+        total: currentItem.price * (currentItem.amount - 1),
+      };
+
+      setCart((prev) =>
+        prev.map((item) => (item.id === newItem.id ? updatedItem : item))
+      );
+
+      await updateDoc(cartDocRef, {
+        items: arrayRemove(currentItem),
+      });
+      await updateDoc(cartDocRef, {
+        items: arrayUnion(updatedItem),
+      });
+      
+    }
+  }
+
+  async function deletItemCard(newItem: ProductProps) {
+    if (!user) return;
+
+    const cartDocRef = doc(db, "cart", user.uid);
+    const itemToDelete = cart.find((item) => item.id === newItem.id);
+
+    if (!itemToDelete) return;
+
+    setCart((prev) => prev.filter((item) => item.id !== newItem.id));
+
+    await updateDoc(cartDocRef, {
+      items: arrayRemove(itemToDelete),
     });
+    toast.success("Item deletado com sucesso!");
   }
 
-  function remuvItemCart(newItem: ProductProps) {
-    setCart((response) => {
-      const itemId = response.find((item) => item.id === newItem.id);
+  async function cleanCart() {
+    if (!user) return;
 
-      if (!itemId || itemId.amount <= 1) {
-        return response.filter((item) => item.id !== newItem.id);
-      }
+    const cartDocRef = doc(db, "cart", user.uid);
 
-      if (itemId) {
-        return response.map((item) =>
-          item.id === newItem.id
-            ? {
-                ...item,
-                amount: item.amount - 1,
-                total: item.price * (item.amount - 1),
-              }
-            : item
-        );
-      } else {
-        return response.filter((item) => item.id !== newItem.id);
-      }
-    });
-  }
+    await deleteDoc(cartDocRef);
 
-  function deletItemCard(newItem: ProductProps) {
-    const remuvItem = cart.filter((produto) => produto.id !== newItem.id);
-    setCart(remuvItem);
-  }
+    console.log("Carrinho deletado do banco");
 
-  function cleanCart() {
     alert("Carrinho foi limpo!");
     setCart([]);
   }
@@ -283,9 +281,9 @@ function ShoppingProvider({ children }: shoppingProviderProps) {
 
   function handleInfoUser(newUser: Userprops) {
     const user = newUser;
-
     setUser(user);
   }
+
   return (
     <shoppingContext.Provider
       value={{
